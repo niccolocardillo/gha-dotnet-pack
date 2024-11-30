@@ -1,6 +1,6 @@
 # .NET Pack
 
-Uses the .NET CLI `dotnet pack` [command](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-pack) to retrieve previously [build](https://github.com/codebeltnet/dotnet-build) projects and packs them into a NuGet package.
+Uses the .NET CLI `dotnet pack` [command](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-pack) to generate package from projects and packs them into a NuGet package.
 
 ## Usage
 
