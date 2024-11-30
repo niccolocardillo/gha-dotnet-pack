@@ -82,8 +82,8 @@ runs:
         PACK_PROJECTS=''
         PACK_OUTPUT=${{ runner.temp }}/.nuget
         if [ ! -z "${{ inputs.packageNameAuto }}" ]; then
-            PACK_PACKAGE_NAME=-p:PackageId=${{ inputs.packageName }}
-            PACK_PACKAGE_VERSION=-p:Version=${{ inputs.packageVersion }}
+            PACK_PACKAGE_NAME="-p:PackageId=${{ inputs.packageName }}"
+            PACK_PACKAGE_VERSION="-p:Version=${{ inputs.packageVersion }}"
             PACK_OUTPUT=$PACK_OUTPUT/${{ inputs.packageName }}.${{ inputs.packageVersion }}.nupkg
         else
             PACK_OUTPUT=$PACK_OUTPUT/*.nupkg
