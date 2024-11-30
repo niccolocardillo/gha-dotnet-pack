@@ -1,0 +1,109 @@
+name: .NET Pack
+description: An opinionated action that retrieve previously build projects and packs them into a NuGet package.
+inputs:
+  configuration:
+    description: Defines the build configuration. Default is Release.
+    required: false
+    default: 'Release'
+  level:
+    description: Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is quiet.
+    required: false
+    default: 'quiet'
+  packageNameAuto:
+    description: When set, the package name will be automatically generated from the project name.
+    required: false
+    default: 'false'
+  packageName:
+    description: Defines the name of the nuget package (the complete name is packageName.packageVersion).
+    required: false
+    default: 'Package'
+  packageVersion:
+    description: The version of your nuget package, e.g. 1.0.0.
+    required: false
+    default: '1.0.0'
+  projects:
+    description: Optional path to the project(s).
+    required: false
+    default: ''
+  restoreCacheKey:
+    description: When set, current workspace will be overwritten with the content of the restore cache. Default is empty.
+    required: false
+    default: ''
+  retentionDaysArtifact:
+    description: Duration after which artifact will expire in days.Default is 1.
+    required: false
+    default: '1'
+  uploadPackedArtifact:
+    description: Upload the created NuGet packages. Default is to not upload.
+    required: false
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - if: inputs.restoreCacheKey != ''
+      name: Restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          ${{ github.workspace }}
+          !${{ github.workspace }}/.git
+          ~/.nuget/packages
+        key: ${{ inputs.restoreCacheKey }}
+        restore-keys: |
+          dotnet-restore-
+        enableCrossOsArchive: true
+        fail-on-cache-miss: true
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: '*-${{ inputs.configuration }}'
+        merge-multiple: true
+
+    - name: Set Version
+      run: |
+        echo "MINVERVERSIONOVERRIDE=${{ inputs.packageVersion }}" >> $GITHUB_ENV
+      shell: bash
+
+    - if: inputs.restoreCacheKey == ''
+      name: Pack (Pre-requisite)
+      uses: maurosoft1973/gha-dotnet-restore@v1
+      with:
+        projects: ${{ inputs.project }}
+
+    - name: Pack
+      run: |
+        # Check
+        PACKAGE_NAME=${{ inputs.packageName }}
+        PACKAGE_VERSION=${{ inputs.packageVersion }}
+        PACKAGE_OUTPUT=${{ runner.temp }}/.nuget
+        PACK_PACKAGE_NAME=''
+        PACK_PACKAGE_VERSION=''
+        PACK_PROJECTS=''
+        PACK_OUTPUT=${{ runner.temp }}/.nuget/*.nupkg
+        if [ ! -z "${{ inputs.packageNameAuto }}" ]; then
+            PACK_PACKAGE_NAME=-p:PackageId=${{ inputs.packageName }}
+            PACK_PACKAGE_VERSION=-p:Version=${{ inputs.packageVersion }}
+            PACK_OUTPUT=$PACK_OUTPUT/${{ inputs.packageName }}.${{ inputs.packageVersion }}.nupkg
+        fi
+        if [ ! -z "${{ inputs.projects }}" ]; then
+            PACK_PROJECTS=${{ inputs.projects }}
+        fi
+        echo "ARTIFACT_PACKAGE_NAME=$PACKAGE_NAME.$PACKAGE_VERSION.nupkg" >> $GITHUB_ENV
+        echo "ARTIFACT_PACKAGE_PATH=$PACK_OUTPUT" >> $GITHUB_ENV
+        # Pack
+        dotnet pack $PACK_PACKAGE_NAME $PACK_PACKAGE_VERSION --configuration ${{ inputs.configuration }} --verbosity ${{ inputs.level }} --no-build --output $PACK_OUTPUT $PACK_PROJECTS
+      shell: bash
+
+    - if: inputs.uploadPackedArtifact == 'true'
+      name: Upload NuGet Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: $ARTIFACT_PACKAGE_NAME
+        path: $ARTIFACT_PACKAGE_PATH
+        if-no-files-found: error
+        include-hidden-files: true
+        retention-days: ${{ inputs.retentionDaysArtifact }}
+branding:
+  icon: 'umbrella'
+  color: 'blue'
