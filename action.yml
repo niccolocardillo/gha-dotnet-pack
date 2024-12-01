@@ -10,15 +10,15 @@ inputs:
     required: false
     default: 'quiet'
   packageNameAuto:
-    description: When set, the package name will be automatically generated from the project name.
+    description: When set, the package name will be automatically generated from the project settings (PackageId and Version).
     required: false
     default: 'false'
   packageName:
-    description: Defines the name of the nuget package (the complete name is packageName.packageVersion).
+    description: Defines the name of the nuget package (only packageNameAuto it's false).
     required: false
     default: 'Package'
   packageVersion:
-    description: The version of your nuget package, e.g. 1.0.0.
+    description: The version of your nuget package, e.g. 1.0.0 (only packageNameAuto it's false)
     required: false
     default: '1.0.0'
   projects:
