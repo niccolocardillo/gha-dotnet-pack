@@ -72,6 +72,7 @@ runs:
         projects: ${{ inputs.project }}
 
     - name: Pack
+      id: pack
       run: |
         # Check
         PACKAGE_NAME=${{ inputs.packageName }}
@@ -91,15 +92,24 @@ runs:
         if [ ! -z "${{ inputs.projects }}" ]; then
             PACK_PROJECTS=${{ inputs.projects }}
         fi
-        echo "ARTIFACT_PACKAGE_NAME=$PACKAGE_NAME.$PACKAGE_VERSION.nupkg" >> $GITHUB_ENV
-        echo "ARTIFACT_PACKAGE_PATH=$PACK_OUTPUT" >> $GITHUB_ENV
+        echo "ARTIFACT_PACKAGE_NAME=$PACKAGE_NAME.$PACKAGE_VERSION.nupkg" >> "$GITHUB_OUTPUT"
+        echo "ARTIFACT_PACKAGE_PATH=$PACK_OUTPUT" >> "$GITHUB_OUTPUT"
         # Pack
+        echo $PACKAGE_NAME
+        echo $PACKAGE_VERSION
+        echo $PACKAGE_OUTPUT
+        echo $PACK_OUTPUT
+        echo $PACK_PACKAGE_NAME
+        echo $PACK_PACKAGE_VERSION
         dotnet pack $PACK_PACKAGE_NAME $PACK_PACKAGE_VERSION --configuration ${{ inputs.configuration }} --verbosity ${{ inputs.level }} --no-build --output $PACK_OUTPUT $PACK_PROJECTS
       shell: bash
 
     - if: inputs.uploadPackedArtifact == 'true'
       name: Upload NuGet Artifacts
       uses: actions/upload-artifact@v4
+      env:
+          ARTIFACT_PACKAGE_NAME: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_NAME }}
+          ARTIFACT_PACKAGE_PATH: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_PATH }}
       with:
         name: $ARTIFACT_PACKAGE_NAME
         path: $ARTIFACT_PACKAGE_PATH
