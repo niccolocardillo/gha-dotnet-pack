@@ -88,6 +88,7 @@ runs:
             PACK_PROJECTS=${{ inputs.projects }}
         fi
         echo "ARTIFACT_PACKAGE_NAME=$PACKAGE_NAME.$PACKAGE_VERSION.nupkg" >> "$GITHUB_OUTPUT"
+        echo "ARTIFACT_PACKAGE_PATH=${{ runner.temp }}/.nuget/*.nupkg" >> "$GITHUB_OUTPUT"
         # Pack
         dotnet pack $PACK_PACKAGE_NAME $PACK_PACKAGE_VERSION --configuration ${{ inputs.configuration }} --verbosity ${{ inputs.level }} --no-build --output ${{ runner.temp }}/.nuget $PACK_PROJECTS
       shell: bash
@@ -97,7 +98,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_NAME }}
-        path: ${{ runner.temp }}/.nuget/*.nupkg
+        path: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_PATH }}
         if-no-files-found: error
         include-hidden-files: true
         retention-days: ${{ inputs.retentionDaysArtifact }}
