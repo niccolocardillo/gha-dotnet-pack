@@ -69,7 +69,7 @@ runs:
       name: Pack (Pre-requisite)
       uses: maurosoft1973/gha-dotnet-restore@v1
       with:
-        projects: ${{ inputs.project }}
+        projects: ${{ inputs.projects }}
 
     - name: Pack
       id: pack
@@ -95,10 +95,8 @@ runs:
     - if: inputs.uploadPackedArtifact == 'true'
       name: Upload NuGet Artifacts
       uses: actions/upload-artifact@v4
-      env:
-          ARTIFACT_PACKAGE_NAME: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_NAME }}
       with:
-        name: $ARTIFACT_PACKAGE_NAME
+        name: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_NAME }}
         path: ${{ runner.temp }}/.nuget/*.nupkg
         if-no-files-found: error
         include-hidden-files: true
