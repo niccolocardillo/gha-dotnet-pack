@@ -60,11 +60,6 @@ runs:
         pattern: '*-${{ inputs.configuration }}'
         merge-multiple: true
 
-    - name: Set Version
-      run: |
-        echo "MINVERVERSIONOVERRIDE=${{ inputs.packageVersion }}" >> $GITHUB_ENV
-      shell: bash
-
     - if: inputs.restoreCacheKey == ''
       name: Pack (Pre-requisite)
       uses: maurosoft1973/gha-dotnet-restore@v1
