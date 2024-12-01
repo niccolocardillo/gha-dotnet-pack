@@ -85,9 +85,6 @@ runs:
         if [ ! -z "${{ inputs.packageNameAuto }}" ]; then
             PACK_PACKAGE_NAME="-p:PackageId=${{ inputs.packageName }}"
             PACK_PACKAGE_VERSION="-p:Version=${{ inputs.packageVersion }}"
-            PACK_OUTPUT=$PACK_OUTPUT/${{ inputs.packageName }}.${{ inputs.packageVersion }}.nupkg
-        else
-            PACK_OUTPUT=$PACK_OUTPUT/*.nupkg
         fi
         if [ ! -z "${{ inputs.projects }}" ]; then
             PACK_PROJECTS=${{ inputs.projects }}
