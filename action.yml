@@ -1,7 +1,7 @@
 name: .NET Pack
 description: An opinionated action that retrieve previously build projects and packs them into a NuGet package.
 inputs:
-  configuration:
+  downloadArtifactName:
     description: Defines the build configuration. Default is Release.
     required: false
     default: 'Release'
@@ -29,7 +29,7 @@ inputs:
     description: When set, current workspace will be overwritten with the content of the restore cache. Default is empty.
     required: false
     default: ''
-  retentionDaysArtifact:
+  retentionDaysPackedArtifact:
     description: Duration after which artifact will expire in days.Default is 1.
     required: false
     default: '1'
@@ -96,7 +96,7 @@ runs:
         path: ${{ steps.pack.outputs.ARTIFACT_PACKAGE_PATH }}
         if-no-files-found: error
         include-hidden-files: true
-        retention-days: ${{ inputs.retentionDaysArtifact }}
+        retention-days: ${{ inputs.retentionDaysPackedArtifact }}
 branding:
   icon: 'umbrella'
   color: 'blue'
